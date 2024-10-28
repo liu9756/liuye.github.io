@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ye Liu Research 1</title>
+    <link rel="stylesheet" href="styles.css">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+	<link href='https://fonts.googleapis.com/css?family=Press Start 2P' rel='stylesheet'>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <ul class="nav-links">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="index.html">Research</a></li>
+            <li><a href="index.html">Publication</a></li>
+        </ul>
+    </nav>
+	<!-- 项目介绍 -->
+    <h1 class="heading">The Gut-joint Axis Project Studies Mechanisms Underlying the Gut Microbiota's Influence on Arthritis</h1>
+    <p style="font-size: 12px; color: gray; border-left: 10px;">
+        <a href="https://medicine.osu.edu/departments/internal-medicine/rheumatology" style="color: rgb(0, 110, 255); text-decoration: none;">About Division of Rheumatology and Immunology</a>
+    </p>
+
+    <section id="ResearchBackground" class="Background-section">
+        <h2>Research Background</h2>
+        <p>Rheumatoid arthritis (RA) is an important health problem. The low concordance rate of RA in monozygotic twins (15%) compared to other autoimmune diseases such as type I diabetes (~50%) suggests that environmental factors must play a crucial role in the etiopathogenesis of RA. Dr. Wu’s current research addresses two major topics, the gut-joint axis and the gut-lung axis. The gut-joint axis project studies mechanisms underlying the gut microbiota’s influence on arthritis, focusing on T cell plasticity and exhaustion; both topics are poorly understood and their role in autoimmune disease remains largely unknown. Using “fate-mapping” in a murine arthritis model, the lab found that gut microbiota can convert already differentiated T cells into another T cell type, promoting arthritis. Dr. Wu and her team are applying these findings to RA patients by using synovial and peripheral blood cells to study the biomarkers and functions that are tied to the gut-origin of the disease.</p>
+    </section>
+       
+    <section id="myjob" class="myjob-section">
+        <h2>My Role and Job</h2>
+        <p>Earlier this year, I joined the Rheumatology and Immunology Research Division at The Ohio State University Wexner Medical Center. Here, I support the computational biology and single-cell analysis efforts in the lab of immunologist Prof. Hsin-Jung Joyce Wu, whose work focuses on the effects of Tfh cells on rheumatoid arthritis, and as a computer researcher in the lab, I am responsible for interfacing with the RNA data extracted by the lab from patients/mice and processing the data using tools like Cellranger, MiXCR, and others. Cellranger, MiXCR and other tools. At the same time, I need to analyze these data bioinformatically at the genetic level, which includes single-cell sequencing, somatic hypermutation analysis, gene-specific comparisons, and macro-analysis at the statistical level. Based on my work, I have built a number of different code frameworks to assist my professor in the bioinformatics level of analysis, and I am honored to be able to use my knowledge of computational biology to assist my professor's lab, which has been working on a project on Tfh cells for the past six years. During my work, I was inspired by the topic of somatic hypermutation, and I am currently starting my own research project based on my expertise in deep learning: deep learning-based prediction of somatic hypermutation. At the same time, I deeply recognize the revolutionary expansion of interdisciplinary research in terms of applications, and I am deeply influenced by the knowledge of the genetic level and have initiated conversations with Prof. Wu about the biology to deepen my understanding of the field. The results of this project have been submitted and accepted </p>
+    </section>
+
+    <section id="methodology" class="methodology-section">
+        <h2>Methodology</h2>
+        <p>
+            In this project, we utilize multiple computational and experimental approaches, including single-cell RNA sequencing and machine learning techniques to analyze the relationship between gut microbiota and immune cell responses.
+        </p>
+        
+        <!-- 内嵌代码框：展示R代码 -->
+        <h3>Sample R Code for Data Analysis</h3>
+        <p>In lab, I need to receive data from different sources and process it with cellranger, then build R code to further cluster and analyze the data. The main data currently being processed comes from our lab's own patient/mouse data and PBMC data provided from Karolinska Institutet.</p>
+        <div class="container">
+            
+        <div class="code-block">
+            <pre><code>
+                library(Seurat)
+                library(SeuratObject)
+                library(dplyr)
+                library(patchwork)
+                library(HGNChelper)
+                library(limma)
+                library(SeuratData)
+                library(openxlsx)
+                library(tidyverse)
+                library(writexl)
+                
+                S2.data <- Read10X(data.dir = "/media/user/Elements/Data_Ye_Liu/scRNA/mouse/ZSG_cellranger/ZSG_cellranger_S2/outs/filtered_feature_bc_matrix")
+                S1.data <- Read10X(data.dir = "/media/user/Elements/Data_Ye_Liu/scRNA/mouse/ZSG_cellranger/ZSG_cellranger_S1/outs/filtered_feature_bc_matrix")
+                
+                #S2
+                S2<-CreateSeuratObject(counts = S2.data,project = "mouse",min.cells = 3,min.features = 200)
+                S2[["percent.mt"]]<-PercentageFeatureSet(S2,pattern = "mt-")
+                S2<-subset(S2,subset = nFeature_RNA>200 & nFeature_RNA<4000 & percent.mt<10)
+                S2<-NormalizeData(S2, normalization.method = "LogNormalize", scale.factor = 10000)
+                S2<-FindVariableFeatures(S2,selection.method = "vst",nfeatures = 2000)
+                S2$Condition = "ZsG+"
+                all.genes <- rownames(S2)
+                S2 <- ScaleData(S2, features = all.genes)
+                
+                S2 <- RunPCA(S2, features = VariableFeatures(object = S2))
+                S2 <- FindNeighbors(S2, dims = 1:10)
+                S2 <- FindClusters(S2, resolution = 0.5)
+                saveRDS(S2,"ZsG_pos")
+                
+                
+                #S1
+                S1<-CreateSeuratObject(counts = S1.data,project = "mouse",min.cells = 3,min.features = 200)
+                S1[["percent.mt"]]<-PercentageFeatureSet(S1,pattern = "mt-")
+                S1<-subset(S1,subset = nFeature_RNA>200 & nFeature_RNA<4000 & percent.mt<10)
+                S1<-NormalizeData(S1, normalization.method = "LogNormalize", scale.factor = 10000)
+                S1<-FindVariableFeatures(S1,selection.method = "vst",nfeatures = 2000)
+                S1$Condition = "ZsG-"
+                all.genes <- rownames(S1)
+                S1 <- ScaleData(S1, features = all.genes)
+                
+                S1 <- RunPCA(S1, features = VariableFeatures(object = S1))
+                S1 <- FindNeighbors(S1, dims = 1:10)
+                S1 <- FindClusters(S1, resolution = 0.5)
+                saveRDS(S1,"ZsG_neg")
+       
+                #Mouse DR3+ZsG+Tfh vs DR3+ ZsG-Tfh
+                ##Extract positive DR3##
+                positive<-WhichCells(S2,expression= Tnfrsf25>0)
+                S2$exp<- ifelse(colnames(S2)%in% positive, "DR3+", "others")
+                Idents(S2) <- "exp"
+                Condition_gene<- paste(S2$Condition, "_",S2$exp)
+                names(Condition_gene) <- colnames(x = S2)
+                S2 <- AddMetaData(
+                  
+                  object = S2,
+                  
+                  metadata = Condition_gene,
+                  
+                  col.name = 'Condition_gene'
+                  
+                )
+                
+                Idents(S2)<-"Condition_gene"
+                
+                table(S2$Condition_gene)
+                table(S2$exp)
+                head(S2)
+                
+                # Subsetting the Seurat object where 'exp' column is "DR3+"
+                S2_DR3_pos <- subset(S2, subset = exp == "DR3+")
+                head(S2_DR3_pos)
+                saveRDS(S2_DR3_pos,"S2_DR3_positive")
+        
+                
+                ##Extract positive DR3##
+                positive<-WhichCells(S1,expression= Tnfrsf25>0)
+                S1$exp<- ifelse(colnames(S1)%in% positive, "DR3+", "others")
+                Idents(S1) <- "exp"
+                Condition_gene<- paste(S1$Condition, "_",S1$exp)
+                names(Condition_gene) <- colnames(x = S1)
+                S1 <- AddMetaData(
+                  
+                  object = S1,
+                  
+                  metadata = Condition_gene,
+                  
+                  col.name = 'Condition_gene'
+                  
+                )
+                
+                Idents(S1)<-"Condition_gene"
+                
+                table(S1$Condition_gene)
+                table(S1$exp)
+                head(S1)
+                
+                # Subsetting the Seurat object where 'exp' column is "DR3+"
+                S1_DR3_pos <- subset(S1, subset = exp == "DR3+")
+                head(S1_DR3_pos)
+                saveRDS(S1_DR3_pos,"S1_DR3_positive")
+                
+                ##Extract negative DR3##
+                positive<-WhichCells(S1,expression= Tnfrsf25==0)
+                S1$exp<- ifelse(colnames(S1)%in% positive, "DR3-", "others")
+                Idents(S1) <- "exp"
+                Condition_gene<- paste(S1$Condition, "_",S1$exp)
+                names(Condition_gene) <- colnames(x = S1)
+                S1 <- AddMetaData(
+                  
+                  object = S1,
+                  
+                  metadata = Condition_gene,
+                  
+                  col.name = 'Condition_gene'
+                  
+                )
+                
+                Idents(S1)<-"Condition_gene"
+                
+                table(S1$Condition_gene)
+                table(S1$exp)
+                head(S1)
+                
+                # Subsetting the Seurat object where 'exp' column is "DR3+"
+                S1_DR3_neg <- subset(S1, subset = exp == "DR3-")
+                head(S1_DR3_neg)
+                saveRDS(S1_DR3_neg,"S1_DR3_negative")
+                
+                
+                
+                S2_DR3_pos <- readRDS("S2_DR3_positive")
+                S1_DR3_pos <- readRDS("S1_DR3_positive")
+                # Merge DR3
+                obj.list<-list(S1_DR3_pos,S2_DR3_pos)
+                data.anchors<-FindIntegrationAnchors(obj.list, dims = 1:20)
+                M.dat<-IntegrateData(anchorset = data.anchors, dims = 1:20)
+                M.dat <- JoinLayers(M.dat,assay="RNA",layer="counts")
+                
+                counts <- GetAssayData(M.dat, assay = "RNA",layer = "counts")
+                
+                #creat a new seurat object
+                Tdat <- CreateSeuratObject(counts = counts,meta.data = M.dat@meta.data)
+                
+                table(Tdat$Condition)
+                
+                Tdat[["percent.mt"]]<- PercentageFeatureSet(Tdat, pattern = "^MT-")
+                Tdat <- subset(Tdat, subset= nFeature_RNA >200 & nFeature_RNA < 4000 & percent.mt <10)
+                Tdat <- NormalizeData(Tdat)
+                Tdat <- FindVariableFeatures(Tdat, selection.method = "vst", nFeature = 2000)
+                # Run PCA
+                all.genes <- rownames(Tdat)
+                Tdat <- ScaleData(Tdat, verbose = FALSE)
+                Tdat <- RunPCA(Tdat, npcs = 20, verbose = FALSE)
+                
+                Tdat <- FindNeighbors(Tdat, reduction = "pca", dims = 1:20)
+                Tdat <- FindClusters(Tdat, resolution = 0.4)
+                saveRDS(Tdat,"ZsG+-_DR3+")
+                
+                table(Tdat$Condition)
+                Idents(Tdat) <- "Condition"
+                
+                b_markers <- FindMarkers(Tdat,
+                                         ident.1 = "ZsG+",
+                                         ident.2 = "ZsG-",
+                                         group.by ="Condition",
+                                         only.pos = FALSE)
+                
+                b_markers
+                head(b_markers)
+                write.csv(x = b_markers, file = "DR3+_ZsG+-.csv")
+                
+                S2 <- readRDS("ZsG_pos")
+                S1 <- readRDS("ZsG_neg")
+                #Mouse CD226+ZsG+Tfh vs CD22+6 ZsG-Tfh
+                ##Extract positive CD226##
+                positive<-WhichCells(S2,expression= Cd226>0)
+                S2$exp<- ifelse(colnames(S2)%in% positive, "CD226+", "others")
+                Idents(S2) <- "exp"
+                Condition_gene<- paste(S2$Condition, "_",S2$exp)
+                names(Condition_gene) <- colnames(x = S2)
+                S2 <- AddMetaData(
+                  
+                  object = S2,
+                  
+                  metadata = Condition_gene,
+                  
+                  col.name = 'Condition_gene'
+                  
+                )
+                
+                Idents(S2)<-"Condition_gene"
+                
+                table(S2$Condition_gene)
+                table(S2$exp)
+                head(S2)
+                
+                # Subsetting the Seurat object where 'exp' column is "DR3+"
+                S2_CD226_pos <- subset(S2, subset = exp == "CD226+")
+                head(S2_CD226_pos)
+                saveRDS(S2_CD226_pos,"S2_CD226_positive")
+                
+                
+                
+                
+                
+                
+                
+                ##Extract positive CD226##
+                positive<-WhichCells(S1,expression= Cd226>0)
+                S1$exp<- ifelse(colnames(S1)%in% positive, "CD226+", "others")
+                Idents(S1) <- "exp"
+                Condition_gene<- paste(S1$Condition, "_",S1$exp)
+                names(Condition_gene) <- colnames(x = S1)
+                S1 <- AddMetaData(
+                  
+                  object = S1,
+                  
+                  metadata = Condition_gene,
+                  
+                  col.name = 'Condition_gene'
+                  
+                )
+                
+                Idents(S1)<-"Condition_gene"
+                
+                table(S1$Condition_gene)
+                table(S1$exp)
+                head(S1)
+                
+                # Subsetting the Seurat object where 'exp' column is "CD226+"
+                S1_CD226_pos <- subset(S1, subset = exp == "CD226+")
+                head(S1_CD226_pos)
+                saveRDS(S1_CD226_pos,"S1_CD226_positive")
+                
+                # Merge CD226
+                obj.list<-list(S2_CD226_pos,S1_CD226_pos)
+                data.anchors<-FindIntegrationAnchors(obj.list, dims = 1:20,k.filter = 50)
+                M.dat<-IntegrateData(anchorset = data.anchors, dims = 1:20)
+                M.dat <- JoinLayers(M.dat,assay="RNA",layer="counts")
+                
+                counts <- GetAssayData(M.dat, assay = "RNA",layer = "counts")
+                
+                #creat a new seurat object
+                Tdat <- CreateSeuratObject(counts = counts,meta.data = M.dat@meta.data)
+                
+                table(Tdat$Condition)
+                
+                Tdat[["percent.mt"]]<- PercentageFeatureSet(Tdat, pattern = "^MT-")
+                Tdat <- subset(Tdat, subset= nFeature_RNA >200 & nFeature_RNA < 4000 & percent.mt <10)
+                Tdat <- NormalizeData(Tdat)
+                Tdat <- FindVariableFeatures(Tdat, selection.method = "vst", nFeature = 2000)
+                # Run PCA
+                all.genes <- rownames(Tdat)
+                Tdat <- ScaleData(Tdat, verbose = FALSE)
+                Tdat <- RunPCA(Tdat, npcs = 20, verbose = FALSE)
+                
+                Tdat <- FindNeighbors(Tdat, reduction = "pca", dims = 1:20)
+                Tdat <- FindClusters(Tdat, resolution = 0.4)
+                saveRDS(Tdat,"ZsG+-_CD226_+-")
+                
+                table(Tdat$Condition)
+                Idents(Tdat) <- "Condition"
+                
+                b_markers <- FindMarkers(Tdat,
+                                         ident.1 = "ZsG+",
+                                         ident.2 = "ZsG-",
+                                         group.by ="Condition",
+                                         only.pos = FALSE)
+                
+                b_markers
+                head(b_markers)
+                write.csv(x = b_markers, file = "ZsG_CD226.csv")
+      
+                
+            </code></pre>
+            
+        </div>
+        <img src="S2_old_mouse_Umap_00.png" alt="S2_old_mouse_Umap_00" class="profile-picture">
+        </div>
+        <h3>Sample R Code for NGS analysis</h3>
+        <p>For raw sequencing data, I need to perform quality control, filtering and correction to remove low quality reads and sequencing errors.</p>
+        <li><strong>Alignment and assembly:</strong> aligning high-quality reads to a reference genome or performing genome assembly to construct a whole genome sequence. In transcriptome analysis, this step is used to align reads to transcripts or genomes.</li>
+        <li><strong>Variant Detection: </strong>Identification of genomic variants (e.g., single nucleotide variants, insertions, and deletions) or copy number variants for use in genomic analysis or personalized medicine research.</li>
+        <div class="container">
+        <div class="code-block code-block1">
+        <pre><code>
+BiocManager::install("clusterProfiler")
+BiocManager::install("pathview")
+BiocManager::install("enrichplot")
+library(clusterProfiler)
+library(enrichplot)
+# we use ggplot2 to add x axis labels (ex: ridgeplot)
+library(ggplot2)
+
+# reading in data from deseq2
+#drosphila_example_de
+#ZsG+_ZsG-_osu.csv
+df = read.csv("mouse_laurie_old_young_B.csv", header=TRUE)
+df = read.csv("mouse_laurie_old_young_T.csv", header=TRUE)
+df = read.csv("/media/user/Elements/Data_Ye_Liu/scRNA/signature/TCR.csv", header = FALSE)
+# we want the log2 fold change 
+
+original_gene_list <- df$avg_log2FC
+# name the vector
+names(original_gene_list) <- toupper(df$X)  
+
+# omit any NA values 
+gene_list<-na.omit(original_gene_list)
+
+# sort the list in decreasing order (required for clusterProfiler)
+gene_list = sort(gene_list, decreasing = TRUE)
+
+#org.Mm.eg.db
+organism = "org.Mm.eg.db"
+BiocManager::install(organism, character.only = TRUE)
+library(organism, character.only = TRUE)
+
+organism = "org.Hs.eg.db"
+library(organism, character.only = TRUE)
+
+gse <- gseGO(geneList=gene_list, 
+ont ="ALL", 
+keyType = "SYMBOL", 
+#nPerm = 10000, 
+minGSSize = 3, 
+maxGSSize = 800, 
+pvalueCutoff = 0.08, 
+verbose = TRUE, 
+OrgDb = organism, 
+pAdjustMethod = "none")
+
+require(DOSE)
+dotplot(gse, showCategory=10, split=".sign") + facet_grid(.~.sign)
+pdf("pathway_mouse_laurie_old_young_T.pdf") #height = 14,width = 10
+dotplot(gse, showCategory=10, split=".sign") + facet_grid(.~.sign)
+dev.off()
+
+# categorySize can be either 'pvalue' or 'geneNum'
+cnetplot(gse, categorySize="pvalue", foldChange=gene_list, showCategory = 3)
+pdf("GSEA_Cnetplot_Hs_GO.pdf") #height = 14,width = 10
+cnetplot(gse, categorySize="pvalue", foldChange=gene_list, showCategory = 3)
+dev.off()
+        </code></pre>
+    </div>
+    <img src="RA_HC_DR3+_GSEA_Dotplot_Hs_GO_00.png" alt="RA_HC_DR3+_GSEA_Dotplot_Hs_GO_00" class="profile-picture">
+    </div>
+
+
+
+
+
+
+
+
+
+
+    <h3>Sample R Code for Heatmap analysis</h3>
+    <p>With heatmap, professors and biology researchers can visualize the distribution of genes of interest in clusters</p>
+        <div class="container">
+        <div class="code-block code-block2">
+        <pre><code>
+library(Seurat)
+library(SeuratObject)
+A1_HC.data <- Read10X(data.dir = "/media/user/Elements/OSU_A3_TO_A6/run_count_A1_HC/outs/filtered_feature_bc_matrix")
+A3_HC.data <- Read10X(data.dir = "/media/user/Elements/OSU_A3_TO_A6/run_count_A3_HC/outs/filtered_feature_bc_matrix")
+A4_RA.data <- Read10X(data.dir = "/media/user/Elements/OSU_A3_TO_A6/run_count_A4_RA/outs/filtered_feature_bc_matrix")
+A5_HC.data <- Read10X(data.dir = "/media/user/Elements/OSU_A3_TO_A6/run_count_A5_HC/outs/filtered_feature_bc_matrix")
+A6_RA.data <- Read10X(data.dir = "/media/user/Elements/OSU_A3_TO_A6/run_count_A6_RA/outs/filtered_feature_bc_matrix")
+
+A1_HC.data
+data1<-as.matrix(A3_HC.data)
+read
+gene <- read.csv("up_filtered_RA_vs_HC_alpha_beta_cd4.csv")
+genelist <- as.array(gene$X) 
+rownames(data1)
+sampleCell <- data1[rownames(data1) %in% genelist,]
+attr(sampleCell,"type")<-"HC"
+saveRDS(sampleCell,"HC3_matrix")
+
+heatmap(sampleCell,main="RA vs HC alpha_beta_cd4 UP: RA4",scale="column")
+mtext("RA", side = 1, line = 3, at = mean(par("usr")[1:2]), cex = 1.2)
+
+
+pdf("heatmap_RA vs HC alpha_beta_cd4 UP_RA4.pdf",width=18,height=20)
+heatmap(sampleCell,main="RA vs HC alpha_beta_cd4 UP: RA4",scale="column")
+mtext("RA", side = 1, line = 3, at = mean(par("usr")[1:2]), cex = 1.2)
+dev.off()
+
+
+data1<-readRDS("HC_RA_osu")
+gene_signature <- read.csv("/media/user/Elements/Data_Ye_Liu/scRNA/signature/TCR.csv", header = FALSE)
+        </code></pre>
+    </div>
+    <img src="heatmap_RA vs HC_ transforming_factor_theronine.png" alt="heatmap_RA vs HC_ transforming_factor_theronine" class="profile-picture">
+    </div>
+        </div>
+        
+
+
+
+        <h3>Sample R Code for Volcano Plot</h3>
+    <p>In the experiments, the volcano diagram is one of the most used visualizations for analysis. With the volcano plot, I compared the significance performance of the group of interest and the control group for a given significance, and I also cross-compared the significance performance of different groups in different genes.</p>
+        <div class="container">
+        <div class="code-block code-block3">
+        <pre><code>
+            library(openxlsx)
+            library(EnhancedVolcano)
+            library(Seurat)
+            library(SeuratObject)
+            library(writexl)
+            getwd()
+            
+            celltype <- unlist(read.csv("/media/user/Elements/Data_Ye_Liu/scRNA/signature/Th17.csv", header = FALSE))
+            celltype <- unlist(read.csv("/media/user/Elements/Data_Ye_Liu/scRNA/signature/Tfh.csv", header = FALSE))
+            celltype <- unlist(read.csv("/media/user/Elements/Data_Ye_Liu/scRNA/signature/TCR.csv", header = FALSE))
+            celltype <- unlist(read.csv("/media/user/Elements/Data_Ye_Liu/scRNA/signature/MOUSE_GOPB_T_Cell_Activation.csv", header = FALSE))
+            celltype <- unlist(read.csv("/media/user/Elements/Data_Ye_Liu/scRNA/signature/PP ZsGTfh+.csv", header = FALSE))
+            # Define the variable for single point of control
+            condition_variable <- "A4B7"
+            signature <- "PP ZsGTfh+"
+            celltype <- toupper(celltype)
+            # Load the data
+            #data1 <- read.csv(paste0("S2_", condition_variable, "_+-.csv"))
+            data1 <- read.csv("123456_RA_VS_HC.csv")
+            #data1 <- read.csv(paste0("RA_", condition_variable, "_+-.csv"))
+            # Subset data based on conditions
+            #up <- subset(data1, p_val < 0.05 & avg_log2FC > 0.58)
+            #down <- subset(data1, p_val < 0.05 & avg_log2FC < -0.58)
+            up <- subset(data1, avg_log2FC > 0)
+            down <- subset(data1, avg_log2FC < 0)
+            
+            # Subset data based on cell types
+            sampleCell <- data1[toupper(data1$X) %in% celltype,]
+            #label_up <- subset(sampleCell, avg_log2FC > 0.58 & p_val < 0.05)
+            #label_down <- subset(sampleCell, avg_log2FC < (-0.58) & p_val < 0.05)
+            label_up <- subset(sampleCell, avg_log2FC > 0)
+            label_down <- subset(sampleCell, avg_log2FC < 0)
+            
+            # Write data to Excel files
+            #write_xlsx(label_up, paste0("up_ ", condition_variable, "+ vs ", condition_variable, "- ",signature,".xlsx"))
+            #write_xlsx(label_down, paste0("down_ ", condition_variable, "+ vs ", condition_variable, "- ",signature,".xlsx"))
+            write_xlsx(label_up, paste0("up_ ", "RA vs HC",signature,".xlsx"))
+            write_xlsx(label_down, paste0("down_ ", "RA vs HC",signature,".xlsx"))
+            
+            # Print the lengths of the subsets
+            cat("Number of down-regulated genes: ", length(label_down$X), "\n")
+            cat("Number of up-regulated genes: ", length(label_up$X), "\n")
+            
+            # Create the plot
+            p2 <- ggplot(data = data1, aes(x = avg_log2FC, y = -log10(p_val))) +
+              geom_point(size = 3, colour = "grey") + 
+              geom_point(data = down, size = 3, colour = "#66B2FF") +
+              geom_point(data = up, size = 3, colour = "#FF6666") +
+              geom_point(data = label_up, shape = 21, colour = "black", fill = "#FFFF99", size = 3.2, stroke = 1) +
+              geom_point(data = label_down, shape = 21, colour = "black", fill = "#FFFF99", size = 3.2, stroke = 1) +
+              #geom_vline(xintercept = c(-0.58, 0.58), col = "blue", linetype = 'dashed') +
+              #geom_hline(yintercept = 0.05, col = "black", linetype = 'dashed') +
+              annotate("text", x = 6, y = 25,label = paste("Number of up-regulated genes: ", length(label_up$X), "\n"), color = "blue")+
+              annotate("text", x = -6, y = 25,label = paste("Number of down-regulated genes: ", length(label_down$X), "\n"), color = "firebrick")+
+              scale_x_continuous(breaks = seq(-10, 10, 2)) +
+              labs(title = paste("RA ", condition_variable, "+ vs ", condition_variable, "- ",signature, sep = "")) +
+              #labs(title = paste("HC", " vs ", "RA", " ",signature, sep = "")) +
+              coord_cartesian(xlim = c(-10, 10), ylim = c(0, 100)) +
+              theme(
+                axis.text.x = element_text(size = 17),
+                axis.text.y = element_text(size = 17)
+              )
+            print(p2)
+            
+            # Add labels to the plot
+            options(ggrepel.max.overlaps = 20)
+            text_label_up <- label_up[toupper(label_up$X) %in% celltype,]
+            text_label_down <- label_down[toupper(label_down$X) %in% celltype,]
+            p3 <- p2 +
+              geom_label_repel(
+                data = text_label_up,
+                aes(label = X), 
+                size = 5,
+                color = "black",
+                arrow = arrow(length = unit(0.02, "npc"), type = "closed", ends = "last", angle = 15),
+                segment.size = 1
+              ) +
+              geom_label_repel(
+                data = text_label_down,
+                aes(label = X), 
+                size = 5,
+                color = "black",
+                arrow = arrow(length = unit(0.02, "npc"), type = "closed", ends = "last", angle = 15),
+                segment.size = 1
+              )
+            
+            print(p3)
+            
+            # Save the plot as PDF
+            #pdf(paste("ZsG+ ", condition_variable, "+ vs ", condition_variable, "- ",signature,".pdf", sep = ""), width = 18, height = 20)
+            #pdf(paste("Volin_ZsG+ vs ZsG- ", signature,".pdf", sep = ""))
+            pdf(paste("HC vs RA ", signature,".pdf", sep = ""),width = 18, height = 20)
+            #pdf(paste("RA ", condition_variable, "+ vs ", condition_variable, "- ",signature,".pdf", sep = ""), width = 18, height = 20)
+            print(p3)
+            dev.off()
+        </code></pre>
+    </div>
+    <img src="MERGED_RA_VS_HC_point_only_version12_00.png" alt="MERGED_RA_VS_HC_point_only_version12_00" class="profile-picture">
+    </div>
+        </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+        <h3>Violin diagram analysis and Cell-Cell Communication</h3>
+        <p>I produced violin plot analysis and Cell-Cell Communication to understand aspects of cell-cell interactions, gene expression distribution, and functional differences in cell types.</p>
+        <li><strong>Violin Plot:</strong>Displays the distribution of gene expression levels in single-cell RNA sequencing or bulk RNA sequencing data. By visualizing the expression pattern of genes in each cell type or condition, differences in gene expression between different cell types can be identified. Violin plots allow you to view the expression variability and density distribution between different groups or cell types, which can help identify trends of high or low expression of certain genes in specific cells or conditions.</li>
+        <li><strong>Cell-Cell Communication Analysis:</strong>In multicellular systems, especially the immune system (e.g., T-cell-B-cell interactions), signals are transmitted between cells through ligand-receptor interactions. Cell-cell communication analysis can help study the physical and chemical interactions between cells, revealing how different cell types coordinate their responses. Cell-cell communication analysis can identify and predict important signaling pathways, especially communication between different cell types during immune response, tissue development and disease progression. In the case of T- and B-cell interactions, analyzing the communication of these cells can reveal how immune responses are activated and modulated, thus helping to develop therapeutic approaches that target specific cellular communication pathways.</li>
+        <div class="container">
+            
+        <img src="Volin_RA BCL6- vs BCL6+ PP ZsGTfh+_00.png" alt="Volin_RA BCL6- vs BCL6+ PP ZsGTfh+_00" class="profile-picture">
+        <img src="ZsG_negative_T_B_Cluster0_00.png" alt="ZsG_negative_T_B_Cluster0_00" class="profile-picture">
+        </div>
+            </div>
+        </div>
+    </section>
+
+	
+    <script src="script.js"></script>
+</body>
+</html>

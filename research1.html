@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ye Liu Research 1</title>
+    <link rel="stylesheet" href="styles.css">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+	<link href='https://fonts.googleapis.com/css?family=Press Start 2P' rel='stylesheet'>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <ul class="nav-links">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="index.html">Research</a></li>
+            <li><a href="index.html">Publication</a></li>
+        </ul>
+    </nav>
+	<!-- 项目介绍 -->
+    <h1 class="heading">Honor Research Program: Accurate Animal Behavior Recognition Based on Traceable Video Segmentation</h1>
+    <p style="font-size: 12px; color: gray; border-left: 10px;">
+        <a href="https://cse.osu.edu/media/document/2020-07-01/quick_guide_to_cse_undergraduate_research.pdf" style="color: rgb(0, 110, 255); text-decoration: none;">About OSU Honors Distinguished Research</a>
+    </p>
+	<div class="container">
+        <div class="text-block">
+            <h2>Introduction</h2>
+            <p>The theme of this project is to capture animal activity information from drone video datasets and train models that can accurately predict mammalian behavior through advanced video tracking and segmentation techniques. This project relies on knowledge and skills in deep learning and computer vision, while the state-of-the-art video segmentation technique SAM2 is used to annotate the fine segmentation of the animals in the video.</p>
+        </div>
+        <div>
+            <img src="SAM2_Intro.png" alt="SAM2_Intro">
+        </div>
+
+        <div style="display: flex; justify-content: space-between;">
+            <img src="G0073-Walk.gif" alt="G0073-Walk" style="width: 30%;">
+            <img src="ZG0658-Walk.gif" alt="ZG0658-Walk" style="width: 30%;">
+            <img src="ZP0632-Walk.gif" alt="ZP0632-Walk" style="width: 30%;">
+        </div>
+        <div class="text-block">
+            <h2>Dataset Selection</h2>
+            <p>The KABR dataset includes over 10 hours of video focusing on different behavioral types for giraffes, plains zebras, and Grevy’s zebras. It consists of eight main behaviors such as walking, grazing, running, and grooming, as well as occlusion states. Additionally, the Animal Kingdom dataset provides 50 hours of annotated video for recognizing animal behavior across 850 species.</p>
+            <a herf="https://kabrdata.xyz/">https://kabrdata.xyz</a>
+        </div>
+
+        <div class="text-block">
+            <h2>Collaborative Action Recognition Model</h2>
+            <p>The CARe model performs action recognition on both visible and invisible animal species. It uses general and specific features to recognize animal behaviors by learning similarities between visible animals and predicting behaviors of unseen animals using spatially-aware weighting systems.</p>
+        </div>
+        <div>
+            <img src="care.png" alt="Action recognition model" style="width: 60%;" >
+        </div>
+
+        <div>
+            <img src="SAM2_2.png" alt="sam2_2" >
+        </div>
+
+        <div>
+            <img src="train.png" alt="train" >
+        </div>
+    </div>
+
+	
+    <script src="script.js"></script>
+</body>
+</html>
